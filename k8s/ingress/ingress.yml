@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-app-ingress
+  namespace: default
+  annotations:
+    ngnix.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - k8s.incampus.in
+      secretName: web-app-tls 
+
+  rules:
+  - host: k8s.incampus.in
+    http:
+      paths:
+      - path: /backend # path based routing
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 80
+      - path: /frontend
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 80
+
+
+## use can also do sub-domain based routing
+  # - host: api.incampus.in
+  #   http:
+  #     paths:
+  #     - path: /
+  #       pathType: Prefix
+  #       backend:
+  #         service:
+  #           name: backend-service
+  #           port:
+  #             number: 80
